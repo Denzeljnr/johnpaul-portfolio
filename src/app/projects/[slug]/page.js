@@ -5,7 +5,7 @@ import Link from "next/link";
 import MetricsRow from "@/components/MetricsRow";
 import Gallery from "@/components/Gallery";
 import LoomEmbed from "@/components/LoomEmbed";
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 export async function generateStaticParams() {
   const projects = await getAllProjects();
@@ -30,7 +30,7 @@ export default async function ProjectPage({ params }) {
         <h1 className="text-4xl font-bold mb-3 font-display">{project.title}</h1>
         <p className="text-lg text-gray-600 dark:text-gray-300 mb-6">{project.oneLiner}</p>
 
-        {project.coverImage && (
+        {project.coverImage?.asset && (
           <img src={urlFor(project.coverImage).width(1000).url()} alt={project.title} className="rounded-xl mb-8 w-full" />
         )}
 
@@ -95,7 +95,7 @@ export default async function ProjectPage({ params }) {
           {project.body && <PortableText value={project.body} />}
         </article>
 
-        {project.gallery?.length > 0 && (
+        {project.gallery?.some((g) => g?.asset) && (
           <div className="mt-8">
             <h2 className="text-2xl font-bold mb-4 font-display">Workflow & Screenshots</h2>
             <Gallery images={project.gallery} />

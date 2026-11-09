@@ -23,7 +23,7 @@ function Card({ p, i }) {
           className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity"
           style={{ background: "radial-gradient(300px circle at var(--mx) var(--my), rgba(139,92,246,.25), transparent 60%)" }}
         />
-        {p.coverImage ? (
+        {p.coverImage?.asset ? (
           <img src={urlFor(p.coverImage).width(600).height(300).url()} alt={p.title} className="w-full h-36 object-cover" />
         ) : (
           <div className="h-36 flex items-end justify-between p-4 bg-gradient-to-br from-violet-600/30 via-cyan-500/15 to-orange-500/20">
