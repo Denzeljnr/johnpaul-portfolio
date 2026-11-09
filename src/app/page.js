@@ -1,69 +1,83 @@
-import Image from "next/image";
+import { getAllProjects, getSiteSettings } from "@/lib/sanity-queries";
+import { PortableText } from "@portabletext/react";
+import { urlFor } from "@/sanity/image";
+import Hero from "@/components/Hero";
+import Marquee from "@/components/Marquee";
+import Stats from "@/components/Stats";
+import Process from "@/components/Process";
+import ProjectsGrid from "@/components/ProjectsGrid";
+import AnimatedSection from "@/components/AnimatedSection";
+import CopyEmailButton from "@/components/CopyEmailButton";
 
-export default function Home() {
+export const revalidate = 60;
+
+const TOOLS = ["n8n", "Gemini API", "OpenAI API", "Claude API", "RAG", "AI Agents", "Supabase", "C#", "Blazor", "React", "Docker", "Google Workspace", "Telegram API"];
+const eyebrow = "text-sm uppercase tracking-widest font-mono text-cyan-600 dark:text-cyan-300 mb-2";
+
+export default async function Home() {
+  const [projects, settings] = await Promise.all([getAllProjects(), getSiteSettings()]);
+  const email = settings?.email || "chukwudubemnwokocha@gmail.com";
+  const tools = Array.from(new Set([...(settings?.skills || []), ...TOOLS]));
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.js
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main className="text-foreground">
+      <Hero
+        displayName={settings?.displayName || "Johnpaul Nwokocha"}
+        tagline={settings?.tagline || "AI Automation Engineer"}
+      />
+      <Marquee items={tools} />
+      <Stats count={projects.length} />
+
+      <AnimatedSection className="max-w-5xl mx-auto px-6 py-16">
+        <p className={eyebrow}>// who i am</p>
+        <h2 className="font-display text-3xl font-bold mb-8">About me</h2>
+        <div className={`grid gap-8 items-start ${settings?.photo ? "md:grid-cols-[280px_1fr]" : ""}`}>
+          {settings?.photo && (
+            <div className="relative w-full max-w-[280px] mx-auto md:mx-0">
+              <div className="absolute inset-0 translate-x-3 translate-y-3 rounded-2xl bg-gradient-to-br from-violet-500 to-cyan-400 opacity-60" />
+              <img
+                src={urlFor(settings.photo).width(560).height(700).fit("crop").url()}
+                alt="Johnpaul Nwokocha" className="relative w-full rounded-2xl object-cover"
+              />
+            </div>
+          )}
+          <div className="glass rounded-2xl p-6 prose dark:prose-invert max-w-none">
+            {settings?.bio ? <PortableText value={settings.bio} /> : <p>Add your bio in /studio, Site Settings.</p>}
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
+      </AnimatedSection>
+
+      <AnimatedSection id="projects" className="max-w-6xl mx-auto px-6 py-16">
+        <p className={eyebrow}>// selected work</p>
+        <h2 className="font-display text-3xl font-bold mb-8">Builds and automations</h2>
+        <ProjectsGrid projects={projects} />
+      </AnimatedSection>
+
+      <AnimatedSection id="process" className="max-w-6xl mx-auto px-6 py-16">
+        <p className={eyebrow}>// how i work</p>
+        <h2 className="font-display text-3xl font-bold">From messy process to working system</h2>
+        <Process />
+      </AnimatedSection>
+
+      <AnimatedSection id="contact" className="max-w-4xl mx-auto px-6 py-20">
+        <div className="glass rounded-3xl p-10 text-center relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-violet-600/20 via-transparent to-cyan-500/20 pointer-events-none" />
+          <h2 className="relative font-display text-3xl md:text-4xl font-bold gradient-text">Have a process worth automating?</h2>
+          <p className="relative mt-3 text-foreground/70">Tell me what is slow, manual or error-prone, and let's see what can run by itself.</p>
+          <div className="relative mt-8 flex flex-wrap justify-center gap-4">
+            <CopyEmailButton
+              email={email}
+              className="px-6 py-3 rounded-xl font-medium text-white bg-gradient-to-r from-violet-500 to-cyan-500 hover:opacity-90 transition"
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            <a href={settings?.linkedin || "https://www.linkedin.com/in/johnpaul-nwokocha67/"} target="_blank" rel="noopener noreferrer" className="glass px-6 py-3 rounded-xl font-medium hover:-translate-y-0.5 transition">
+              LinkedIn
+            </a>
+            <a href="https://github.com/Denzeljnr" target="_blank" rel="noopener noreferrer" className="glass px-6 py-3 rounded-xl font-medium hover:-translate-y-0.5 transition">
+              GitHub
+            </a>
+          </div>
         </div>
-      </main>
-    </div>
+      </AnimatedSection>
+    </main>
   );
 }
